@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Rechnungsverarbeitung</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js -->
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <!-- Animate.css für Animationen -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Zusätzliche Styles -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      font-family: 'Roboto', sans-serif;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Partikel-Animation */
+    .particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: rgba(0, 255, 255, 0.7);
+      border-radius: 50%;
+      animation: move 10s linear infinite;
+    }
+
+    @keyframes move {
+      from {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateY(-1000px) translateX(1000px);
+        opacity: 0;
+      }
+    }
+
+    /* Header Styling */
+    header {
+      text-align: center;
+      padding: 20px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .welcome-text {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #00ffff;
+      animation: fadeInDown 2s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Container Styling */
+    .container {
+      background: rgba(20, 20, 20, 0.85);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+      max-width: 900px;
+      width: 100%;
+      margin: auto;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      animation: fadeInUp 1s ease both;
+      z-index: 1;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 40px, 0);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* Buttons Styling */
+    .file-input::file-selector-button {
+      background-color: rgba(0, 255, 255, 0.3);
+      color: #e0e0e0;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(0, 255, 255, 0.5);
+    }
+
+    .file-input::file-selector-button:hover {
+      background-color: rgba(0, 255, 255, 0.5);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    }
+
+    .btn-primary,
+    .btn-success {
+      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+      border-radius: 12px;
+      padding: 15px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(0, 255, 255, 0.5);
+    }
+
+    .btn-primary {
+      background-color: rgba(0, 255, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+      background-color: rgba(0, 255, 255, 0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+    }
+
+    .btn-success {
+      background-color: rgba(0, 255, 150, 0.3);
+    }
+
+    .btn-success:hover {
+      background-color: rgba(0, 255, 150, 0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px rgba(0, 255, 150, 0.6);
+    }
+
+    /* Dateiliste Styling */
+    .file-list {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 10px;
+      margin-top: 30px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .file-item {
+      background: rgba(30, 30, 30, 0.9);
+      padding: 10px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+      width: 250px;
+      min-width: 250px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeInUp 0.5s ease both;
+      position: relative;
+      will-change: transform;
+      overflow: visible;
+    }
+
+    .file-item:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 40px rgba(0, 255, 255, 0.4);
+      z-index: 100;
+    }
+
+    .pdf-preview {
+      width: 100%;
+      height: 200px;
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .file-item:hover .pdf-preview {
+      transform: scale(1.1);
+    }
+
+    /* Alerts Styling */
+    .alert {
+      border-left-width: 4px;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 12px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      animation: slideIn 0.5s ease both;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .alert-success {
+      border-color: #00ff96;
+      background-color: rgba(0, 255, 150, 0.1);
+      color: #e0e0e0;
+    }
+
+    .alert-danger {
+      border-color: #ff0066;
+      background-color: rgba(255, 0, 102, 0.1);
+      color: #e0e0e0;
+    }
+
+    .alert-warning {
+      border-color: #ffcc00;
+      background-color: rgba(255, 204, 0, 0.1);
+      color: #e0e0e0;
+    }
+
+    .alert-info {
+      border-color: #0099ff;
+      background-color: rgba(0, 153, 255, 0.1);
+      color: #e0e0e0;
+    }
+
+    .alert .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      cursor: pointer;
+      color: #e0e0e0;
+    }
+
+    /* Footer Styling */
+    footer {
+      text-align: center;
+      padding: 20px 0;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 1s ease both;
+    }
+
+    .footer-text {
+      font-size: 1.5rem;
+      color: #00ffff;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+
+    /* Download Bereich Styling */
+    #downloadSection {
+      animation: fadeInUp 1s ease both;
+    }
+
+    /* Neue Styles für Dateinamenliste */
+    .filename-list {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    .filename-item {
+      background: rgba(30, 30, 30, 0.9);
+      padding: 10px 15px;
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      margin-bottom: 10px;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    .filename-item:hover {
+      background-color: rgba(0, 255, 255, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="particles" id="particles"></div>
+
+  <header>
+    <div class="welcome-text">Willkommen Zu PDF-RECHNUNG-ERKENNUNG</div>
+  </header>
+
+  <div class="container">
+    <form id="uploadForm" enctype="multipart/form-data" class="space-y-8">
+      <div>
+        <label for="files" class="block text-xl font-medium mb-4">PDF-Dateien auswählen (max. 100)</label>
+        <input type="file" id="files" name="files" accept=".pdf" multiple required
+          class="file-input block w-full text-sm text-gray-300">
+      </div>
+      <div id="fileList" class="file-list"></div>
+      <button type="submit" class="btn-primary w-full text-lg font-semibold shadow-md text-gray-200">Hochladen und
+        Verarbeiten</button>
+    </form>
+    <div id="alertPlaceholder"></div>
+    <div id="downloadSection" class="mt-8 hidden text-center">
+      <h2 class="text-2xl font-medium mb-6">Verarbeitung abgeschlossen!</h2>
+      <ul id="filenameList" class="filename-list"></ul>
+      <a id="downloadLink" href="#"
+        class="btn-success inline-block text-lg font-semibold shadow-md text-gray-200">Download ZIP</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-text">© 2024 Rechnungsverarbeitung. Alle Rechte vorbehalten</div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    // Partikel-Erzeugung
+    const particlesContainer = document.getElementById('particles');
+    const numParticles = 50;
+
+    for (let i = 0; i < numParticles; i++) {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      particle.style.left = Math.random() * 100 + 'vw';
+      particle.style.top = Math.random() * 100 + 'vh';
+      particle.style.animationDuration = 5 + Math.random() * 10 + 's';
+      particlesContainer.appendChild(particle);
+    }
+
+    const uploadForm = document.getElementById('uploadForm');
+    const filesInput = document.getElementById('files');
+    const fileList = document.getElementById('fileList');
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+    const downloadSection = document.getElementById('downloadSection');
+    const downloadLink = document.getElementById('downloadLink');
+    const filenameList = document.getElementById('filenameList');
+
+    function showAlert(message, type) {
+      const alertTypes = {
+        success: 'alert-success',
+        danger: 'alert-danger',
+        warning: 'alert-warning',
+        info: 'alert-info'
+      };
+
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alert ${alertTypes[type]} animate__animated animate__slideInLeft`;
+      alertDiv.innerHTML = `
+                <span class="alert-icon">${type === 'success' ? '✔️' : type === 'danger' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                <span>${message}</span>
+                <span class="close-btn">&times;</span>
+            `;
+
+      alertPlaceholder.appendChild(alertDiv);
+
+      alertDiv.querySelector('.close-btn').addEventListener('click', () => {
+        alertDiv.classList.add('animate__slideOutRight');
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 500);
+      });
+
+      setTimeout(() => {
+        alertDiv.classList.add('animate__slideOutRight');
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 500);
+      }, 5000);
+    }
+
+    function renderFileList(files) {
+      fileList.innerHTML = '';
+      Array.from(files).forEach((file) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+
+        const pdfPreview = document.createElement('embed');
+        pdfPreview.src = URL.createObjectURL(file);
+        pdfPreview.type = 'application/pdf';
+        pdfPreview.className = 'pdf-preview';
+
+        const fileDetails = document.createElement('div');
+        fileDetails.style.marginTop = '10px';
+        const fileName = document.createElement('div');
+        fileName.className = 'file-name';
+        fileName.textContent = file.name;
+        const fileSize = document.createElement('div');
+        fileSize.className = 'file-size';
+        fileSize.textContent = `${(file.size / 1024).toFixed(2)} KB`;
+
+        fileDetails.appendChild(fileName);
+        fileDetails.appendChild(fileSize);
+        fileItem.appendChild(pdfPreview);
+        fileItem.appendChild(fileDetails);
+        fileList.appendChild(fileItem);
+      });
+    }
+
+    filesInput.addEventListener('change', () => {
+      const files = filesInput.files;
+      if (files.length > 0) {
+        renderFileList(files);
+      } else {
+        fileList.innerHTML = '';
+      }
+    });
+
+    uploadForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const files = filesInput.files;
+
+      if (files.length === 0) {
+        showAlert('Bitte wählen Sie mindestens eine PDF-Datei aus.', 'warning');
+        return;
+      }
+
+      if (files.length > 100) {
+        showAlert('Sie können maximal 100 Dateien gleichzeitig hochladen.', 'warning');
+        return;
+      }
+
+      const formData = new FormData();
+      for (let file of files) {
+        formData.append('files', file);
+      }
+
+      showAlert('Dateien werden hochgeladen und verarbeitet...', 'info');
+
+      axios.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+        .then(response => {
+          if (response.data.download_url) {
+            downloadLink.href = response.data.download_url;
+
+            // Anzeige der umbenannten Dateinamen
+            if (response.data.filenames && response.data.filenames.length > 0) {
+              filenameList.innerHTML = '';
+              response.data.filenames.forEach(filename => {
+                const listItem = document.createElement('li');
+                listItem.className = 'filename-item';
+                listItem.textContent = filename;
+                filenameList.appendChild(listItem);
+              });
+            }
+
+            downloadSection.classList.remove('hidden');
+            showAlert('Dateien erfolgreich verarbeitet!', 'success');
+            fileList.innerHTML = '';
+            filesInput.value = '';
+          } else {
+            showAlert('Verarbeitung abgeschlossen, aber kein Download-Link gefunden.', 'warning');
+          }
+        })
+        .catch(error => {
+          if (error.response && error.response.data && error.response.data.error) {
+            showAlert(error.response.data.error, 'danger');
+          } else {
+            showAlert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.', 'danger');
+          }
+        });
+    });
+  </script>
+</body>
+
+</html>
